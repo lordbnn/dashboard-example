@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tunde's Mobile Shop - Sales Dashboard (BAD VERSION)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            padding: 10px;
+            font-size: 11px;
+        }
+        .dashboard-header {
+            background: linear-gradient(135deg, #1a237e, #283593);
+            color: white;
+            padding: 12px 20px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .dashboard-header h1 {
+            font-size: 18px;
+            margin-bottom: 3px;
+        }
+        .dashboard-header p {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .kpi-card {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .kpi-card .value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1a237e;
+        }
+        .kpi-card .label {
+            font-size: 9px;
+            color: #666;
+            margin-top: 3px;
+        }
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .chart-card {
+            background: white;
+            padding: 12px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .chart-card h3 {
+            font-size: 11px;
+            color: #333;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .chart-container {
+            height: 180px;
+            position: relative;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9px;
+        }
+        .data-table th, .data-table td {
+            padding: 4px 6px;
+            border: 1px solid #ddd;
+            text-align: right;
+        }
+        .data-table th {
+            background: #f5f5f5;
+            font-weight: bold;
+        }
+        .data-table td:first-child, .data-table th:first-child {
+            text-align: left;
+        }
+        .footer-note {
+            text-align: center;
+            color: #999;
+            font-size: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+        .chart-card.wide {
+            grid-column: span 2;
+        }
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 80px;
+            color: rgba(255, 0, 0, 0.08);
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .bad-label {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #c62828;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 12px;
+            z-index: 1001;
+        }
+    </style>
+</head>
+<body>
+    <div class="watermark">BAD EXAMPLE</div>
+    <div class="bad-label">❌ THE "BAD" DASHBOARD</div>
+    
+    <div class="dashboard-header">
+        <h1>📱 Tunde's Mobile Shop - Sales Analytics Dashboard</h1>
+        <p>Comprehensive Sales Performance Analysis | July - December 2024 | Auto-refreshed: Never</p>
+    </div>
+
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="value">₦11,345,500</div>
+            <div class="label">Total Revenue</div>
+        </div>
+        <div class="kpi-card">
+            <div class="value">2,850</div>
+            <div class="label">Total Transactions</div>
+        </div>
+        <div class="kpi-card">
+            <div class="value">₦3,981</div>
+            <div class="label">Avg Transaction</div>
+        </div>
+        <div class="kpi-card">
+            <div class="value">38</div>
+            <div class="label">Products Sold</div>
+        </div>
+        <div class="kpi-card">
+            <div class="value">5</div>
+            <div class="label">Categories</div>
+        </div>
+        <div class="kpi-card">
+            <div class="value">184</div>
+            <div class="label">Days Active</div>
+        </div>
+    </div>
+
+    <div class="chart-grid">
+        <!-- Chart 1: Revenue Trend -->
+        <div class="chart-card">
+            <h3>Revenue by Month</h3>
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 2: Category Pie -->
+        <div class="chart-card">
+            <h3>Sales by Category</h3>
+            <div class="chart-container">
+                <canvas id="categoryPie"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 3: Payment Method Pie -->
+        <div class="chart-card">
+            <h3>Payment Methods</h3>
+            <div class="chart-container">
+                <canvas id="paymentPie"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 4: Transactions by Day -->
+        <div class="chart-card">
+            <h3>Transactions by Day of Week</h3>
+            <div class="chart-container">
+                <canvas id="dayChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 5: Top Products -->
+        <div class="chart-card">
+            <h3>Top 10 Products by Revenue</h3>
+            <div class="chart-container">
+                <canvas id="productsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 6: Avg Transaction Trend -->
+        <div class="chart-card">
+            <h3>Average Transaction Value by Month</h3>
+            <div class="chart-container">
+                <canvas id="avgChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 7: Transaction Volume -->
+        <div class="chart-card">
+            <h3>Transaction Volume by Month</h3>
+            <div class="chart-container">
+                <canvas id="volumeChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="chart-card wide">
+            <h3>Monthly Performance Summary</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Transactions</th>
+                        <th>Revenue</th>
+                        <th>Avg Txn</th>
+                        <th>Cases</th>
+                        <th>Chargers</th>
+                        <th>Protectors</th>
+                        <th>Earphones</th>
+                        <th>Power Banks</th>
+                        <th>MoM %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>July</td>
+                        <td>404</td>
+                        <td>₦1,565,000</td>
+                        <td>₦3,874</td>
+                        <td>₦468,000</td>
+                        <td>₦398,000</td>
+                        <td>₦156,000</td>
+                        <td>₦189,000</td>
+                        <td>₦354,000</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>August</td>
+                        <td>356</td>
+                        <td>₦1,342,300</td>
+                        <td>₦3,771</td>
+                        <td>₦412,000</td>
+                        <td>₦321,000</td>
+                        <td>₦134,000</td>
+                        <td>₦178,000</td>
+                        <td>₦297,300</td>
+                        <td style="color:red">-14.2%</td>
+                    </tr>
+                    <tr>
+                        <td>September</td>
+                        <td>451</td>
+                        <td>₦1,873,400</td>
+                        <td>₦4,153</td>
+                        <td>₦578,000</td>
+                        <td>₦489,000</td>
+                        <td>₦198,000</td>
+                        <td>₦267,000</td>
+                        <td>₦341,400</td>
+                        <td style="color:green">+39.6%</td>
+                    </tr>
+                    <tr>
+                        <td>October</td>
+                        <td>546</td>
+                        <td>₦2,196,600</td>
+                        <td>₦4,023</td>
+                        <td>₦672,000</td>
+                        <td>₦534,000</td>
+                        <td>₦245,000</td>
+                        <td>₦298,000</td>
+                        <td>₦447,600</td>
+                        <td style="color:green">+17.2%</td>
+                    </tr>
+                    <tr>
+                        <td>November</td>
+                        <td>570</td>
+                        <td>₦2,225,000</td>
+                        <td>₦3,904</td>
+                        <td>₦689,000</td>
+                        <td>₦567,000</td>
+                        <td>₦256,000</td>
+                        <td>₦312,000</td>
+                        <td>₦401,000</td>
+                        <td style="color:green">+1.3%</td>
+                    </tr>
+                    <tr>
+                        <td>December</td>
+                        <td>523</td>
+                        <td>₦2,143,200</td>
+                        <td>₦4,098</td>
+                        <td>₦623,000</td>
+                        <td>₦572,200</td>
+                        <td>₦244,800</td>
+                        <td>₦315,000</td>
+                        <td>₦388,200</td>
+                        <td style="color:red">-3.7%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        Dashboard created with Excel & Chart.js | Data Source: POS System Export | Last Updated: December 31, 2024<br>
+        <em>For questions about this dashboard, contact your data analyst</em>
+    </div>
+
+    <script>
+        // Bright, competing colors (bad practice)
+        const colors = ['#e53935', '#43a047', '#1e88e5', '#fb8c00', '#8e24aa', '#00acc1', '#ffb300'];
+        
+        // Chart 1: Revenue by Month
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'line',
+            data: {
+                labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Revenue',
+                    data: [1565000, 1342300, 1873400, 2196600, 2225000, 2143200],
+                    borderColor: '#1e88e5',
+                    backgroundColor: 'rgba(30, 136, 229, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { 
+                        ticks: { 
+                            font: { size: 9 },
+                            callback: function(value) { return '₦' + (value/1000000).toFixed(1) + 'M'; }
+                        }
+                    },
+                    x: { ticks: { font: { size: 9 } } }
+                }
+            }
+        });
+
+        // Chart 2: Category Pie (too many colors)
+        new Chart(document.getElementById('categoryPie'), {
+            type: 'pie',
+            data: {
+                labels: ['Cases', 'Chargers', 'Protectors', 'Earphones', 'Power Banks'],
+                datasets: [{
+                    data: [3442000, 2881200, 1233800, 1559000, 2229500],
+                    backgroundColor: colors
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { 
+                        position: 'right',
+                        labels: { font: { size: 9 }, boxWidth: 10 }
+                    }
+                }
+            }
+        });
+
+        // Chart 3: Payment Pie
+        new Chart(document.getElementById('paymentPie'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Transfer', 'Cash', 'POS'],
+                datasets: [{
+                    data: [5114400, 4734100, 1497000],
+                    backgroundColor: ['#43a047', '#e53935', '#1e88e5']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { 
+                        position: 'right',
+                        labels: { font: { size: 9 }, boxWidth: 10 }
+                    }
+                }
+            }
+        });
+
+        // Chart 4: Day of Week
+        new Chart(document.getElementById('dayChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                datasets: [{
+                    label: 'Transactions',
+                    data: [298, 378, 412, 423, 445, 467, 427],
+                    backgroundColor: colors
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { ticks: { font: { size: 9 } } },
+                    x: { ticks: { font: { size: 9 } } }
+                }
+            }
+        });
+
+        // Chart 5: Top Products (horizontal bar)
+        new Chart(document.getElementById('productsChart'), {
+            type: 'bar',
+            data: {
+                labels: ['PB 20000mAh', 'iPhone 15 PM Case', 'USB-C Fast 25W', 'AirPods Pro Clone', 'Samsung S24U Case', 'PB 10000mAh', 'Samsung Charger', 'TWS Pro', 'iPhone Cable', 'Privacy Glass'],
+                datasets: [{
+                    label: 'Revenue',
+                    data: [856000, 678000, 534000, 489000, 456000, 423000, 398000, 367000, 345000, 312000],
+                    backgroundColor: colors
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { 
+                        ticks: { 
+                            font: { size: 8 },
+                            callback: function(value) { return '₦' + (value/1000) + 'K'; }
+                        }
+                    },
+                    y: { ticks: { font: { size: 8 } } }
+                }
+            }
+        });
+
+        // Chart 6: Avg Transaction
+        new Chart(document.getElementById('avgChart'), {
+            type: 'line',
+            data: {
+                labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Avg Transaction',
+                    data: [3874, 3771, 4153, 4023, 3904, 4098],
+                    borderColor: '#8e24aa',
+                    backgroundColor: 'rgba(142, 36, 170, 0.1)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { 
+                        ticks: { 
+                            font: { size: 9 },
+                            callback: function(value) { return '₦' + value.toLocaleString(); }
+                        }
+                    },
+                    x: { ticks: { font: { size: 9 } } }
+                }
+            }
+        });
+
+        // Chart 7: Volume
+        new Chart(document.getElementById('volumeChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Transactions',
+                    data: [404, 356, 451, 546, 570, 523],
+                    backgroundColor: '#00acc1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { ticks: { font: { size: 9 } } },
+                    x: { ticks: { font: { size: 9 } } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
